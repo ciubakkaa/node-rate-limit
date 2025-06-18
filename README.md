@@ -26,28 +26,20 @@ This is a Node.js and Express API that demonstrates rate limiting with two diffe
    ```
 2. Install the dependencies:
    ```bash
-   npm install
+   yarn
    ```
 
 ### Running Locally
 
 1. Create a `.env` file in the root of the project and add the following environment variables:
    ```
-   PORT=3000
-   USE_STORAGE=memory
+   PORT=3003
    DATABASE_URL=your-postgresql-connection-string
    ```
 2. Start the server:
    ```bash
-   npm start
+   yarn start
    ```
-
-### Switching Storage Types
-
-To switch between storage types, change the `USE_STORAGE` environment variable in your `.env` file:
-
-- For in-memory storage: `USE_STORAGE=memory`
-- For PostgreSQL storage: `USE_STORAGE=persistent`
 
 ### Example `curl` Commands
 
@@ -68,7 +60,6 @@ curl -X GET http://localhost:3000/bar -H "Authorization: Bearer client-1"
 1. Create a new Web Service on Render and connect it to your GitHub repository.
 2. Set the build command to `npm install` and the start command to `npm start`.
 3. Add the following environment variables in the Render dashboard:
-   - `USE_STORAGE`: `persistent`
    - `DATABASE_URL`: your Render PostgreSQL connection string
 
 ## Testing
@@ -76,4 +67,10 @@ curl -X GET http://localhost:3000/bar -H "Authorization: Bearer client-1"
 To run the tests, use the following command:
 
 ```bash
-npm test
+yarn test
+```
+
+### For trying the endpoints
+You can use in Authorization headers "Bearer client-1" or "Bearer client-1"
+
+You can try out the remote urls here: https://node-rate-limit.onrender.com (with /foo or /bar)
