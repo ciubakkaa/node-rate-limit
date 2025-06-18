@@ -13,8 +13,8 @@ const tokenBucket = (config, storage) => async (req, res, next) => {
   }
 
   const now = Date.now();
-  const elapsedSeconds = (now - bucket.lastRefill) / 1000;
-  const newTokens = elapsedSeconds * refillRate;
+  const elapsedMilliseconds = now - bucket.lastRefill;
+  const newTokens = Math.floor((elapsedMilliseconds * refillRate) / 1000);
 
   bucket.tokens = Math.min(capacity, bucket.tokens + newTokens);
   bucket.lastRefill = now;
