@@ -4,6 +4,9 @@ const path = require('path');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 const init = async () => {
@@ -14,9 +17,6 @@ const init = async () => {
   await pool.query(initSql);
 };
 
-pool.on('connect', () => {
-  init();
-});
 
 const get = async (key) => {
   const [type, clientId] = key.split(':');
@@ -24,7 +24,7 @@ const get = async (key) => {
     'SELECT * FROM rate_limits WHERE client_id = $1 AND type = $2',
     [clientId, type]
   );
-  return result.rows[0];
+  return result.rows[0] || null;
 };
 
 const set = async (key, value) => {
@@ -33,7 +33,7 @@ const set = async (key, value) => {
 
   const query = `
     INSERT INTO rate_limits (client_id, type, counter, window_start, tokens, last_refill)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, to_timestamp($4), $5, to_timestamp($6 / 1000.0))
     ON CONFLICT (client_id, type)
     DO UPDATE SET
       counter = EXCLUDED.counter,
@@ -42,22 +42,18 @@ const set = async (key, value) => {
       last_refill = EXCLUDED.last_refill;
   `;
 
-  const windowStartTimestamp = windowStart ? `to_timestamp(${windowStart})` : null;
-  const lastRefillTimestamp = lastRefill
-    ? `to_timestamp(${lastRefill / 1000.0})`
-    : null;
-
   await pool.query(query, [
     clientId,
     type,
     counter,
-    windowStartTimestamp,
+    windowStart,
     tokens,
-    lastRefillTimestamp,
+    lastRefill,
   ]);
 };
 
 module.exports = {
+  init,
   get,
   set,
 };
